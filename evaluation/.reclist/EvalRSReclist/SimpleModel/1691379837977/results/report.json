@@ -1,0 +1,121 @@
+{
+  "metadata": {
+    "finish_time": "2023-08-06 20:44:02",
+    "model_name": "SimpleModel",
+    "reclist": "EvalRSReclist",
+    "tests": [
+      "stats",
+      "hit_rate_at_100",
+      "mrr_at_100",
+      "mred_country",
+      "mred_user_activity",
+      "mred_track_popularity",
+      "mred_artist_popularity",
+      "mred_gender",
+      "being_less_wrong"
+    ]
+  },
+  "data": [
+    {
+      "name": "stats",
+      "description": "",
+      "result": {
+        "num_users": 29722,
+        "max_items": 1,
+        "min_items": 1
+      },
+      "display_type": "None"
+    },
+    {
+      "name": "HIT_RATE",
+      "description": "",
+      "result": 0.00023551577955723034,
+      "display_type": "None"
+    },
+    {
+      "name": "MRR",
+      "description": "",
+      "result": 2.0280237883805623e-05,
+      "display_type": "None"
+    },
+    {
+      "name": "MRED_COUNTRY",
+      "description": "",
+      "result": {
+        "mred": -0.0003880319079588222,
+        "mr": 0.9998099654137053,
+        "BR": 1.0,
+        "CA": 1.0,
+        "DE": 1.0,
+        "ES": 1.0,
+        "FI": 1.0,
+        "FR": 1.0,
+        "NL": 1.0,
+        "NaN": 0.999811770611118,
+        "PL": 1.0,
+        "RU": 1.0,
+        "SE": 1.0,
+        "UA": 0.9966666666666667,
+        "UK": 1.0,
+        "US": 0.9996130030959752
+      },
+      "display_type": "CHART_TYPE.BARS"
+    },
+    {
+      "name": "MRED_USER_ACTIVITY",
+      "description": "",
+      "result": {
+        "mred": -8.120360159972566e-05,
+        "mr": 0.9997644842204427,
+        "1": 0.9995460735360872,
+        "100": 0.9997857938479993,
+        "1000": 0.9997605937275557
+      },
+      "display_type": "CHART_TYPE.BARS"
+    },
+    {
+      "name": "MRED_TRACK_POPULARITY",
+      "description": "",
+      "result": {
+        "mred": -0.0001241409886942879,
+        "mr": 0.9997644842204427,
+        "1": 1.0,
+        "10": 0.9997435897435898,
+        "100": 0.9997598463016331,
+        "1000": 1.0
+      },
+      "display_type": "CHART_TYPE.BARS"
+    },
+    {
+      "name": "MRED_ARTIST_POPULARITY",
+      "description": "",
+      "result": {
+        "mred": -0.00010155178907345075,
+        "mr": 0.9997644842204427,
+        "1": 1.0,
+        "100": 0.9998187092095722,
+        "1000": 0.9996867413266505,
+        "10000": 0.9998032077142576
+      },
+      "display_type": "CHART_TYPE.BARS"
+    },
+    {
+      "name": "MRED_GENDER",
+      "description": "",
+      "result": {
+        "mred": -4.398199897692745e-05,
+        "mr": 0.9997644842204427,
+        "f": 0.999742334449884,
+        "m": 0.9997001499250375,
+        "n": 0.9998099461514096
+      },
+      "display_type": "CHART_TYPE.BARS"
+    },
+    {
+      "name": "BEING_LESS_WRONG",
+      "description": "",
+      "result": 0.003574586706236005,
+      "display_type": "None"
+    }
+  ]
+}
