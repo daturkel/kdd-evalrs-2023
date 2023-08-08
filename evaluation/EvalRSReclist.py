@@ -35,6 +35,28 @@ class EvalRSReclist(RecList):
 
         return
 
+    def get_masked_preds(self, preds_df, data_df, q=0.5):
+        df = preds_df.copy()
+        data_df = data_df.copy()
+        data_df.loc[:, "date"] = pd.to_datetime(data_df["timestamp"], unit="s").dt.date
+        user_to_listens = dict(
+            data_df.groupby(["user_id", "date"])["user_track_count"]
+            .count()
+            .reset_index()
+            .groupby("user_id")["user_track_count"]
+            .quantile(0.5)
+        )
+        df_list = df.apply(lambda x: list(x), axis=1)
+        df_list = df_list.reset_index().apply(
+            lambda x: [
+                item for i, item in enumerate(x[0]) if i < user_to_listens[x["user_id"]]
+            ],
+            axis=1,
+        )
+        df_masked = pd.DataFrame(df_list.to_list(), index=preds_df.index).fillna(-1)
+        df_masked.index.name = "user_id"
+        return df_masked
+
     def mrr_at_k_slice(
         self,
         y_preds: pd.DataFrame,
@@ -92,28 +114,6 @@ class EvalRSReclist(RecList):
             np.linalg.norm(u, axis=-1) * np.linalg.norm(v, axis=-1)
         )
 
-    def get_masked_preds(self, preds_df, data_df, q=0.05):
-        df = preds_df.copy()
-        data_df = data_df.copy()
-        data_df.loc[:, "date"] = pd.to_datetime(data_df["timestamp"], unit="s").dt.date
-        user_to_listens = dict(
-            data_df.groupby(["user_id", "date"])["user_track_count"]
-            .count()
-            .reset_index()
-            .groupby("user_id")["user_track_count"]
-            .quantile(0.5)
-        )
-        df_list = df.apply(lambda x: list(x), axis=1)
-        df_list = df_list.reset_index().apply(
-            lambda x: [
-                item for i, item in enumerate(x[0]) if i < user_to_listens[x["user_id"]]
-            ],
-            axis=1,
-        )
-        df_masked = pd.DataFrame(df_list.to_list(), index=preds_df.index).fillna(-1)
-        df_masked.index.name = "user_id"
-        return df_masked
-
     @rec_test(test_type="stats")
     def stats(self):
         tracks_per_users = (self._y_test.values != -1).sum(axis=1)
@@ -130,19 +130,40 @@ class EvalRSReclist(RecList):
         hr = hit_rate_at_k(self._y_preds, self._y_test, k=TOP_K_CHALLENGE)
         return hr
 
-    @rec_test(test_type="HIT_RATE_PERSONALIZED_K")
-    def hit_rate_at_personalized_k(self):
+    def hit_rate_at_personalized_k(self, q):
         from reclist.metrics.standard_metrics import hit_rate_at_k
 
-        preds = self.get_masked_preds(self._y_preds, self.dataset._test_set)
+        preds = self.get_masked_preds(self._y_preds, self.dataset._test_set, q)
         hr = hit_rate_at_k(preds, self._y_test, k=TOP_K_CHALLENGE)
         return hr
+
+    @rec_test(test_type="HIT_RATE_PERSONALIZED_K_MEDIAN")
+    def hit_rate_at_personalized_k_median(self):
+        return self.hit_rate_at_personalized_k(0.5)
+
+    @rec_test(test_type="HIT_RATE_PERSONALIZED_K_p99")
+    def hit_rate_at_personalized_k_p90(self):
+        return self.hit_rate_at_personalized_k(0.99)
 
     @rec_test(test_type="MRR")
     def mrr_at_100(self):
         from reclist.metrics.standard_metrics import mrr_at_k
 
         return mrr_at_k(self._y_preds, self._y_test, k=TOP_K_CHALLENGE)
+
+    @rec_test(test_type="MRR_PERSONALIZED_K_MEDIAN")
+    def mrr_at_100_personalized_median(self):
+        from reclist.metrics.standard_metrics import mrr_at_k
+
+        preds = self.get_masked_preds(self._y_preds, self.dataset._test_set, 0.5)
+        return mrr_at_k(preds, self._y_test, k=TOP_K_CHALLENGE)
+
+    @rec_test(test_type="MRR_PERSONALIZED_K_p99")
+    def mrr_at_100_personalized_p99(self):
+        from reclist.metrics.standard_metrics import mrr_at_k
+
+        preds = self.get_masked_preds(self._y_preds, self.dataset._test_set, 0.99)
+        return mrr_at_k(preds, self._y_test, k=TOP_K_CHALLENGE)
 
     @rec_test(test_type="MRED_COUNTRY", display_type=CHART_TYPE.BARS)
     def mred_country(self):
